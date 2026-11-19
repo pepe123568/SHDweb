@@ -1,0 +1,79 @@
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <span class="navbar-brand mb-0 h1">Muro de publicaciones</span>
+    <button type="button" class="btn btn-outline-light btn-sm" (click)="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <h1 class="h3 mb-3">Publicaciones</h1>
+      <p class="text-secondary small">Muro de prueba con JSONPlaceholder. Los cambios se simulan y no se guardan permanentemente en la API.</p>
+      @if (error()) {
+        <div class="alert alert-danger" role="alert">{{ error() }}</div>
+      }
+      @if (mensaje()) {
+        <div class="alert alert-success" role="status">{{ mensaje() }}</div>
+      }
+
+      <section class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5 mb-3">{{ editando() === null ? '¿Qué quieres publicar?' : 'Editar publicación #' + editando() }}</h2>
+          <form [formGroup]="formulario" (ngSubmit)="guardar()">
+            <div class="mb-3">
+              <label for="titulo" class="form-label">Título</label>
+              <input id="titulo" class="form-control" formControlName="title" placeholder="Escribe un título">
+              @if (formulario.controls.title.touched && formulario.controls.title.invalid) {
+                <div class="text-danger small">El título es obligatorio.</div>
+              }
+            </div>
+            <div class="mb-3">
+              <label for="contenido" class="form-label">Publicación</label>
+              <textarea id="contenido" rows="3" class="form-control" formControlName="body" placeholder="¿Qué está pasando?"></textarea>
+              @if (formulario.controls.body.touched && formulario.controls.body.invalid) {
+                <div class="text-danger small">El contenido es obligatorio.</div>
+              }
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+                {{ guardando() ? 'Guardando...' : editando() === null ? 'Publicar' : 'Guardar cambios' }}
+              </button>
+              @if (editando() !== null) {
+                <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+              }
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <h2 class="h5 mb-3">Muro</h2>
+      @if (cargando()) {
+        <p class="text-secondary">Cargando publicaciones...</p>
+      } @else {
+        <div class="list-group">
+          @for (post of publicaciones(); track post.id) {
+            <article class="list-group-item p-3">
+              <div class="d-flex gap-3">
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <strong>Usuario {{ post.userId }}</strong>
+                    <small class="text-secondary">Publicación #{{ post.id }}</small>
+                  </div>
+                  <h3 class="h6">{{ post.title }}</h3>
+                  <p class="mb-3">{{ post.body }}</p>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="editar(post)">Editar</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" (click)="eliminar(post)" [disabled]="eliminando() === post.id">{{ eliminando() === post.id ? 'Eliminando...' : 'Eliminar' }}</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          } @empty {
+            <p class="text-secondary">No hay publicaciones disponibles.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</main>
